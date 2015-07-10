@@ -2,3 +2,7 @@
 .project
 .settings
 target
+classes
+xyz
+output
+temp
