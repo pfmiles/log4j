@@ -17,12 +17,14 @@
 
 package org.apache.log4j.helpers;
 
-import org.apache.log4j.spi.AppenderAttachable;
-import org.apache.log4j.spi.LoggingEvent;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.log4j.Appender;
-import java.util.Vector;
-import java.util.Enumeration;
+import org.apache.log4j.spi.AppenderAttachable;
+import org.apache.log4j.spi.LoggingEvent;
 
 /**
    A straightforward implementation of the {@link AppenderAttachable}
@@ -33,7 +35,7 @@ import java.util.Enumeration;
 public class AppenderAttachableImpl implements AppenderAttachable {
   
   /** Array of appenders. */
-  protected Vector  appenderList;
+  protected List<Appender> appenderList;
 
   /**
      Attach an appender. If the appender is already in the list in
@@ -46,10 +48,10 @@ public class AppenderAttachableImpl implements AppenderAttachable {
       return;
     
     if(appenderList == null) {
-      appenderList = new Vector(1);
+      appenderList = new CopyOnWriteArrayList<Appender>();
     }
     if(!appenderList.contains(newAppender))
-      appenderList.addElement(newAppender);
+      appenderList.add(newAppender);
   }
 
   /**
@@ -62,7 +64,7 @@ public class AppenderAttachableImpl implements AppenderAttachable {
     if(appenderList != null) {
       size = appenderList.size();
       for(int i = 0; i < size; i++) {
-	appender = (Appender) appenderList.elementAt(i);
+	appender = (Appender) appenderList.get(i);
 	appender.doAppend(event);
       }
     }    
@@ -77,11 +79,23 @@ public class AppenderAttachableImpl implements AppenderAttachable {
      @return Enumeration An enumeration of attached appenders.
    */
   public
-  Enumeration getAllAppenders() {
-    if(appenderList == null)
-      return null;
-    else 
-      return appenderList.elements();    
+  Enumeration<Appender> getAllAppenders() {
+    if(appenderList == null) {
+      return NullEnumeration.getInstance();
+    } else { 
+      final Iterator<Appender> iter = appenderList.iterator();
+      return new Enumeration<Appender>(){
+
+        public boolean hasMoreElements() {
+            return iter.hasNext();
+        }
+
+        public Appender nextElement() {
+            return iter.next();
+        }
+        
+    };    
+    }
   }
 
   /**
@@ -99,7 +113,7 @@ public class AppenderAttachableImpl implements AppenderAttachable {
      int size = appenderList.size();
      Appender appender;
      for(int i = 0; i < size; i++) {
-       appender = (Appender) appenderList.elementAt(i);
+       appender = (Appender) appenderList.get(i);
        if(name.equals(appender.getName()))
 	  return appender;
      }
@@ -120,7 +134,7 @@ public class AppenderAttachableImpl implements AppenderAttachable {
      int size = appenderList.size();
      Appender a;
      for(int i = 0; i < size; i++) {
-       a  = (Appender) appenderList.elementAt(i);
+       a  = (Appender) appenderList.get(i);
        if(a == appender)
 	  return true;
      }
@@ -137,10 +151,10 @@ public class AppenderAttachableImpl implements AppenderAttachable {
     if(appenderList != null) {
       int len = appenderList.size();      
       for(int i = 0; i < len; i++) {
-	Appender a = (Appender) appenderList.elementAt(i);
+	Appender a = (Appender) appenderList.get(i);
 	a.close();
       }
-      appenderList.removeAllElements();
+      appenderList.clear();
       appenderList = null;      
     }
   }
@@ -153,7 +167,7 @@ public class AppenderAttachableImpl implements AppenderAttachable {
   void removeAppender(Appender appender) {
     if(appender == null || appenderList == null) 
       return;
-    appenderList.removeElement(appender);    
+    appenderList.remove(appender);    
   }
 
 
@@ -166,8 +180,8 @@ public class AppenderAttachableImpl implements AppenderAttachable {
     if(name == null || appenderList == null) return;
     int size = appenderList.size();
     for(int i = 0; i < size; i++) {
-      if(name.equals(((Appender)appenderList.elementAt(i)).getName())) {
-	 appenderList.removeElementAt(i);
+      if(name.equals(((Appender)appenderList.get(i)).getName())) {
+	 appenderList.remove(i);
 	 break;
       }
     }

@@ -31,17 +31,17 @@
 
 package org.apache.log4j;
 
-import org.apache.log4j.spi.AppenderAttachable;
-import org.apache.log4j.spi.LoggingEvent;
-import org.apache.log4j.spi.LoggerRepository;
-import org.apache.log4j.spi.HierarchyEventListener;
-import org.apache.log4j.helpers.NullEnumeration;
-import org.apache.log4j.helpers.AppenderAttachableImpl;
-
 import java.util.Enumeration;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Vector;
+
+import org.apache.log4j.helpers.AppenderAttachableImpl;
+import org.apache.log4j.helpers.NullEnumeration;
+import org.apache.log4j.spi.AppenderAttachable;
+import org.apache.log4j.spi.HierarchyEventListener;
+import org.apache.log4j.spi.LoggerRepository;
+import org.apache.log4j.spi.LoggingEvent;
 
 
 /**
@@ -123,7 +123,7 @@ public class Category implements AppenderAttachable {
   protected LoggerRepository repository;
 
 
-  AppenderAttachableImpl aai;
+  AppenderAttachableImpl aai = new AppenderAttachableImpl();
 
   /** Additivity is set to true by default, that is children inherit
       the appenders of their ancestors by default. If this variable is
@@ -155,7 +155,6 @@ public class Category implements AppenderAttachable {
      <p>If <code>newAppender</code> is already in the list of
      appenders, then it won't be added again.
   */
-  synchronized
   public
   void addAppender(Appender newAppender) {
     if(aai == null) {
@@ -201,14 +200,12 @@ public class Category implements AppenderAttachable {
 
     for(Category c = this; c != null; c=c.parent) {
       // Protected against simultaneous call to addAppender, removeAppender,...
-      synchronized(c) {
 	if(c.aai != null) {
 	  writes += c.aai.appendLoopOnAppenders(event);
 	}
 	if(!c.additive) {
 	  break;
 	}
-      }
     }
 
     if(writes == 0) {
@@ -221,7 +218,6 @@ public class Category implements AppenderAttachable {
      interface.
      @since 1.0
   */
-  synchronized
   void closeNestedAppenders() {
     Enumeration enumeration = this.getAllAppenders();
     if(enumeration != null) {
@@ -406,7 +402,6 @@ public class Category implements AppenderAttachable {
      is returned.
 
      @return Enumeration An enumeration of the appenders in this category.  */
-  synchronized
   public
   Enumeration getAllAppenders() {
     if(aai == null)
@@ -420,7 +415,6 @@ public class Category implements AppenderAttachable {
 
      <p>Return the appender with that name if in the list. Return
      <code>null</code> otherwise.  */
-  synchronized
   public
   Appender getAppender(String name) {
      if(aai == null || name == null)
@@ -880,7 +874,6 @@ public class Category implements AppenderAttachable {
 
      <p>This is useful when re-reading configuration information.
   */
-  synchronized
   public
   void removeAllAppenders() {
     if(aai != null) {
@@ -902,7 +895,6 @@ public class Category implements AppenderAttachable {
 
      @since 0.8.2
   */
-  synchronized
   public
   void removeAppender(Appender appender) {
     if(appender == null || aai == null)
@@ -919,7 +911,6 @@ public class Category implements AppenderAttachable {
      list of appenders.
 
      @since 0.8.2 */
-  synchronized
   public
   void removeAppender(String name) {
     if(name == null || aai == null) return;

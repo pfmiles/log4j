@@ -99,8 +99,8 @@
   <!-- Directory for temporary files. -->
   <property name="dist.tmp" value="${dist.dir}/tmp"/>
   
-  <property name="javac.source" value="1.4"/>
-  <property name="javac.target" value="1.4"/>
+  <property name="javac.source" value="1.6"/>
+  <property name="javac.target" value="1.6"/>
   
   <!--  destination for generated documentation on Apache web host  -->
   <property name="apache.javadoc_dest" value="/www/logging.apache.org/log4j/docs"/>
