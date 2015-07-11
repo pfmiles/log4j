@@ -59,14 +59,10 @@ public class AppenderAttachableImpl implements AppenderAttachable {
   public
   int appendLoopOnAppenders(LoggingEvent event) {
     int size = 0;
-    Appender appender;
 
     if(appenderList != null) {
       size = appenderList.size();
-      for(int i = 0; i < size; i++) {
-	appender = (Appender) appenderList.get(i);
-	appender.doAppend(event);
-      }
+      for(Appender a: appenderList) a.doAppend(event);
     }    
     return size;
   }
